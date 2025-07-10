@@ -10,9 +10,6 @@ const MenuList = ({
   addToCart,
   updateCartQuantity
 }) => {
-console.log("✅ MenuList received grouped items:", groupedItems);
-
-
 
   return (
     <div>

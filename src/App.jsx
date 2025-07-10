@@ -43,16 +43,13 @@ useEffect(() => {
       ]);
 
       setCategories(catRes.data);
-      console.log("✅ Categories from API:", catRes.data);
-
+   
       const grouped = {};
       subcatRes.data.forEach(sub => {
         const catId = Number(sub.categoryId);
         if (!grouped[catId]) grouped[catId] = [];
         grouped[catId].push(sub);
       });
-      console.log("✅ Subcategories from API:", subcatRes.data);
-      console.log("✅ Grouped subcategories before state set:", grouped);
       setSubcategories(grouped);
 
       
