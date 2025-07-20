@@ -8,25 +8,28 @@ const MenuList = ({
   toggleCategory,
   getItemQuantityInCart,
   addToCart,
-  updateCartQuantity
-}) => {
-
+  updateCartQuantity,
+  categories
+}) => { 
   return (
     <div>
-      {Object.entries(groupedItems).map(([categoryName, subcategories]) => (
-        <CategorySection
-          key={categoryName}
-          categoryName={categoryName}
-          subcategories={subcategories}
-          expanded={!!expandedCategories[categoryName]}
-          toggleCategory={toggleCategory}
-          getItemQuantityInCart={getItemQuantityInCart}
-          addToCart={addToCart}
-          updateCartQuantity={updateCartQuantity}
-          
-        />
-      ))}
-  
+      {Object.entries(groupedItems).map(([categoryName, subcategories]) => {
+        const categoryId = categories.find(cat => cat.categoryName === categoryName)?.categoryId;
+
+        return (
+          <div key={categoryName} id={`category-${categoryId}`} className="scroll-mt-24">
+            <CategorySection
+              categoryName={categoryName}
+              subcategories={subcategories}
+              expanded={expandedCategories[categoryName]}
+              toggleCategory={toggleCategory}
+              getItemQuantityInCart={getItemQuantityInCart}
+              addToCart={addToCart}
+              updateCartQuantity={updateCartQuantity}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

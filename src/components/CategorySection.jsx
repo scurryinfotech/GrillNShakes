@@ -1,7 +1,6 @@
-// src/components/CategorySection.jsx
+//src/components/CategorySection.jsx
 import React from 'react';
 import MenuItem from './MenuItems';
-
 
 const CategorySection = ({
   categoryName,
@@ -12,17 +11,19 @@ const CategorySection = ({
   getItemQuantityInCart,
   updateCartQuantity
 }) => (
-  
 
-  <div className="px-4 ">
+  <div className="px-4">
     <button
-      onClick={() => toggleCategory(categoryName)}
-      className="text-lg font-semibold mt-4 mb-2 text-black bg-gray-100 px-4 py-2 rounded shadow w-full text-left"
-    >
-      {categoryName} {expanded ? '▲' : '▼'}
-    </button>
+  onClick={() => {
+    console.log("Category clicked:", categoryName);
+    toggleCategory(categoryName);
+  }}
+  className="text-lg  font-semibold mt-4 mb-2 text-black bg-gray-100 px-4 py-2 rounded shadow w-full text-left cursor-pointer"
+>
+  {categoryName} {expanded ? '▲' : '▼'}
+</button>
+
     
-{console.log("expanded:", expanded, "subcategories:", subcategories)}
 
    {expanded && Object.entries(subcategories ?? {}).map(
 ([subName, items]) => (
@@ -37,6 +38,7 @@ const CategorySection = ({
           getItemQuantityInCart={getItemQuantityInCart}
           addToCart={addToCart}
           updateCartQuantity={updateCartQuantity}
+          
         />
       ))}
     </div>

@@ -1,17 +1,24 @@
 import React from 'react';
 
-const CategoryButtons = ({ categories }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 bg">
-    {categories.map(category => (
+const CategoryButtons = ({ categories, toggleCategory, expandedCategories }) => (
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2 sm:gap-3">
+    {categories.map((category) => (
       <button
         key={category.categoryId}
         onClick={() => {
-          const element = document.getElementById(`category-${category.categoryId}`);
+          toggleCategory(category.categoryName); 
+
+          const element = document.getElementById(`category-${category.categoryName}`);
+
           if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+            element.scrollIntoView({ behavior: 'smooth' ,  block: 'start'});
           }
         }}
-        className={`${category.color} text-black py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-bold text-sm sm:text-base lg:text-lg transition-all hover:-90 hover:scale-105 shadow-md`}
+        className={`${
+          expandedCategories[category.categoryName]
+            ? 'bg-teal-600'
+            : 'bg-white text-black'
+        } py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-bold text-sm sm:text-base lg:text-lg transition-all hover:scale-105 shadow-md break-words whitespace-normal`}
       >
         {category.categoryName.replace('_', ' & ')}
       </button>

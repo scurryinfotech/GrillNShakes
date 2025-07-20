@@ -4,9 +4,19 @@ import { Plus, Minus } from 'lucide-react';
 const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, updateCartQuantity }) => (
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-gray-50">
     <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-0">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-        <span className="text-xl sm:text-2xl">🍽️</span>
+      {/* ✅ Image Block */}
+      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center shadow-md">
+        {item.imageData ? (
+          <img
+            src={`data:image/jpeg;base64,${item.imageData}`}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-2xl">🍽️</span>
+        )}
       </div>
+
       <div className="flex-1">
         <h3 className="font-semibold text-gray-800 text-sm sm:text-base">{item.name}</h3>
         <p className="text-xs sm:text-sm text-gray-600 mt-1">{subcategoryName}</p>
@@ -16,10 +26,11 @@ const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, upd
     <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
       {Object.entries(item.prices).map(([size, price]) => {
         const quantity = getItemQuantityInCart(item.id, size);
-
         return (
           <div key={size} className="flex flex-col items-center bg-white p-2 rounded-lg shadow-sm border">
-            <div className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">{size} - ₹{price}</div>
+            <div className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+              {size} - ₹{price}
+            </div>
             <div className="flex items-center gap-2">
               {quantity > 0 && (
                 <button

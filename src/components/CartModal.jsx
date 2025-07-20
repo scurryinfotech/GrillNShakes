@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus, Minus, Trash2, MapPin } from 'lucide-react';
 
-const CartModal = ({ cart, getCartTotal, updateCartQuantity, removeFromCart, handlePlaceOrder, selectedTable, setShowCart }) => (
+const CartModal = ({ cart, updateCartQuantity, removeFromCart, handlePlaceOrder, selectedTable, setShowCart }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
     <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] sm:max-h-[80vh] overflow-y-auto shadow-xl">
       <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-t-lg">
@@ -51,10 +51,8 @@ const CartModal = ({ cart, getCartTotal, updateCartQuantity, removeFromCart, han
               </div>
             ))}
             
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-base sm:text-lg font-bold">Total: ₹{getCartTotal()}</span>
-              </div>
+            <div className="mt-4 pt-4 ">
+            
               
               {selectedTable && (
                 <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">

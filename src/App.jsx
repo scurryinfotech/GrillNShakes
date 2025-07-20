@@ -3,16 +3,15 @@ import axios from 'axios';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import CategoryButtons from './components/CategoryButtons';
-import MenuList from './components/MenuList';
+import MenuList from './components/menuList';
 import CartModal from './components/CartModal';
 import MenuItem from "./components/MenuItems.jsx";
 import TableSelectionModal from './components/TableSelectionModal';
 import StickyCartButton from './components/StickyCartButton.jsx';
 import { tables } from './data/menuData';
 
-
-
 const RestaurantApp = () => {
+
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState({});
   const [menuItems, setMenuItems] = useState({});
@@ -25,6 +24,36 @@ const RestaurantApp = () => {
   const [showTableSelection, setShowTableSelection] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [error, setError] = useState(null);
+
+  
+
+  const handlePlaceOrder = async () => {
+  if (!selectedTable) {
+    setShowTableSelection(true);
+    return;
+  }
+
+  const token = localStorage.getItem("token"); 
+
+
+  try {
+     await axios.post("https://localhost:7104/api/Order/Post", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    alert("✅ Order placed successfully!");
+    setCart([]);
+    setShowCart(false);
+    setSelectedTable('');
+  } catch (error) {
+    console.error("❌ Order failed:", error);
+    alert("❌ Failed to place order.");
+  }
+};
+
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -38,11 +67,19 @@ useEffect(() => {
           headers: { Authorization: `Bearer ${token}` }
         }),
         axios.get("https://localhost:7104/api/Order/GetMenuItem?username=Grill_N_Shakes", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }     
         })
+
       ]);
+      console.log("🔍 Item with image check:", itemRes.data[0]);
+
 
       setCategories(catRes.data);
+       const initialExpanded = {};
+      catRes.data.forEach(cat => {
+        initialExpanded[cat.categoryName] = true;
+      });
+      setExpandedCategories(initialExpanded);
    
       const grouped = {};
       subcatRes.data.forEach(sub => {
@@ -62,10 +99,12 @@ useEffect(() => {
       groupedItemsBySubcategory[subId].push({
   ...item,
   name: item.itemName,
-  id: item.itemId, // since your data uses itemName
+  id: item.itemId,
+  imageData: item.imageSrc && item.imageSrc.startsWith("/9j/") ? item.imageSrc : null, // since your data uses itemName
   prices: {
-    Small: item.price1,
-    Medium: item.price2
+    Half: item.price1,
+    Full: item.price2
+    
   }
 });
 
@@ -82,10 +121,6 @@ useEffect(() => {
 }, []);
 
 
-
-
-  
-
   const getFilteredItems = () => {
     let allItems = [];
     
@@ -97,7 +132,7 @@ useEffect(() => {
           
           allItems = allItems.concat(items.map(item => ({
             ...item,
-            subcategoryName: subcategory.name,
+              subcategoryName: subcategory.subcategoryName || subcategory.name || 'Unknown',
             categoryId: subcategory.categoryId
             
           })));
@@ -165,22 +200,25 @@ useEffect(() => {
   };
 
   const toggleCategory = (categoryName) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryName]: !prev[categoryName]
-    }));
-  };
+  setExpandedCategories(prev => {
+    const isAlreadyExpanded = !!prev[categoryName];
+    return isAlreadyExpanded
+      ? {} // close all if clicked again
+      : { [categoryName]: true }; // open only one
+  });
+};
 
-  const handlePlaceOrder = () => {
-    if (!selectedTable) {
-      setShowTableSelection(true);
-      return;
-    }
-    alert(`Order placed for ${selectedTable}!\n\nItems: ${cart.length}\nTotal: ₹${getCartTotal()}`);
-    setCart([]);
-    setShowCart(false);
-    setSelectedTable('');
-  };
+
+  // const handlePlaceOrder = () => {
+  //   if (!selectedTable) {
+  //     setShowTableSelection(true);
+  //     return;
+  //   }
+  //   alert(`Order placed for ${selectedTable}!\n\nItems: ${cart.length}\nTotal: ₹${getCartTotal()}`);
+  //   setCart([]);
+  //   setShowCart(false);
+  //   setSelectedTable('');
+  // };
   
   const groupedItems = () => {
   const filtered = getFilteredItems();
@@ -189,7 +227,8 @@ useEffect(() => {
   if (searchTerm) {
     filtered.forEach(item => {
       const categoryName = categories.find(cat => cat.categoryId === item.categoryId)?.categoryName || 'Unknown';
-      const subName = item.subcategoryName || 'Uncategorized';
+      const subName = item.subcategoryName || "Uncategorized ";
+
 
       if (!grouped[categoryName]) grouped[categoryName] = {};
       if (!grouped[categoryName][subName]) grouped[categoryName][subName] = [];
@@ -215,6 +254,7 @@ useEffect(() => {
       });
     });
   }
+  
 
   return grouped;
 };
@@ -222,12 +262,12 @@ useEffect(() => {
 
 
     return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className=" min-h-screen bg-gray-50 relative">
       <Header getCartItemCount={getCartItemCount} 
         setShowCart={setShowCart}  />
 
     {error ? (
-      <div className="text-red-500 text-center mt-10">❌ Error occurred while loading data</div>
+      <div className="text-red-500 text-center mt-10">loading data....</div>
     ) : (
       <>
         <div className="max-w-7xl mx-auto p-3 sm:p-4">
@@ -237,9 +277,11 @@ useEffect(() => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 mb-4 sm:mb-6">
+      <div className=" sticky top-14.5 bg-white z-30  max-w-7xl mx-auto px-3 sm:px-4 mb-4 sm:mb-6">
         <CategoryButtons 
           categories={categories} 
+          toggleCategory={toggleCategory}
+          expandedCategories={expandedCategories}
         />
       </div>
 
@@ -252,6 +294,7 @@ useEffect(() => {
           getItemQuantityInCart={getItemQuantityInCart}
           addToCart={addToCart}
           updateCartQuantity={updateCartQuantity}
+          
         />
       </div>
       
@@ -264,6 +307,8 @@ useEffect(() => {
           handlePlaceOrder={handlePlaceOrder}
           selectedTable={selectedTable}
           setShowCart={setShowCart}
+
+          
         />
       )}
 
