@@ -8,15 +8,13 @@ import CartModal from './components/CartModal';
 import MenuItem from "./components/MenuItems.jsx";
 import TableSelectionModal from './components/TableSelectionModal';
 import StickyCartButton from './components/StickyCartButton.jsx';
-import { tables } from './data/menuData';
+// import { tables } from './data/menuData';
 
 const RestaurantApp = () => {
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState({});
   const [menuItems, setMenuItems] = useState({});
-
-
   const [searchTerm, setSearchTerm] = useState('');
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
@@ -24,6 +22,7 @@ const RestaurantApp = () => {
   const [showTableSelection, setShowTableSelection] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [error, setError] = useState(null);
+  // const [tables, setTables] = useState([]); 
 
   
 
@@ -32,8 +31,7 @@ const RestaurantApp = () => {
     setShowTableSelection(true);
     return;
   }
-
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdyaWxsX05fU2hha2VzIiwibmJmIjoxNzUxMjA5MTg4LCJleHAiOjE3NTg5ODUxODgsImlhdCI6MTc1MTIwOTE4OH0.H2XoHKLvlrM8cpb68ht18K2Mkj6PVnSSd-tM4HmMIfI"); 
 
 
   try {
@@ -43,16 +41,16 @@ const RestaurantApp = () => {
       }
     });
 
-    alert("✅ Order placed successfully!");
+    // alert("✅ Order placed successfully!");
     setCart([]);
     setShowCart(false);
     setSelectedTable('');
   } catch (error) {
     console.error("❌ Order failed:", error);
-    alert("❌ Failed to place order.");
   }
 };
 
+  
 
 useEffect(() => {
   const fetchData = async () => {
@@ -68,10 +66,14 @@ useEffect(() => {
         }),
         axios.get("https://localhost:7104/api/Order/GetMenuItem?username=Grill_N_Shakes", {
           headers: { Authorization: `Bearer ${token}` }     
-        })
+        }),
+  //        axios.get("https://localhost:7104/api/Order/GetTables?username=Grill_N_Shakes", {
+  //   headers: { Authorization: `Bearer ${token}` }
+  // })
 
       ]);
-      console.log("🔍 Item with image check:", itemRes.data[0]);
+
+      
 
 
       setCategories(catRes.data);
@@ -79,6 +81,8 @@ useEffect(() => {
       catRes.data.forEach(cat => {
         initialExpanded[cat.categoryName] = true;
       });
+
+      // setTables(tableRes.data); 
       setExpandedCategories(initialExpanded);
    
       const grouped = {};
@@ -100,7 +104,7 @@ useEffect(() => {
   ...item,
   name: item.itemName,
   id: item.itemId,
-  imageData: item.imageSrc && item.imageSrc.startsWith("/9j/") ? item.imageSrc : null, // since your data uses itemName
+  imageData: item.imageSrc && item.imageSrc.startsWith("") ? item.imageSrc : null, // since your data uses itemName
   prices: {
     Half: item.price1,
     Full: item.price2
@@ -112,7 +116,7 @@ useEffect(() => {
       
       setMenuItems(groupedItemsBySubcategory);
     } catch (error) {
-      console.error("❌ Error fetching data:", error);
+      console.error("❌ Error fetching data:", error);    
       setError(error);
     }
   };
@@ -229,7 +233,6 @@ useEffect(() => {
       const categoryName = categories.find(cat => cat.categoryId === item.categoryId)?.categoryName || 'Unknown';
       const subName = item.subcategoryName || "Uncategorized ";
 
-
       if (!grouped[categoryName]) grouped[categoryName] = {};
       if (!grouped[categoryName][subName]) grouped[categoryName][subName] = [];
 
@@ -259,10 +262,8 @@ useEffect(() => {
   return grouped;
 };
 
-
-
     return (
-    <div className=" min-h-screen bg-gray-50 relative">
+    <div className=" min-h-screen bg-gray-50 relative scroll-pt-[128px] scroll-smooth">
       <Header getCartItemCount={getCartItemCount} 
         setShowCart={setShowCart}  />
 
@@ -270,14 +271,14 @@ useEffect(() => {
       <div className="text-red-500 text-center mt-10">loading data....</div>
     ) : (
       <>
-        <div className="max-w-7xl mx-auto p-3 sm:p-4">
+        <div className="max-w-7xl mx-auto p-3 sm:p-4 bg-none">
         <SearchBar 
           searchTerm={searchTerm} 
           setSearchTerm={setSearchTerm} 
         />
       </div>
 
-      <div className=" sticky top-14.5 bg-white z-30  max-w-7xl mx-auto px-3 sm:px-4 mb-4 sm:mb-6">
+      <div className=" sticky top-[64px] z-40 bg-white shadow-md">
         <CategoryButtons 
           categories={categories} 
           toggleCategory={toggleCategory}
@@ -285,7 +286,7 @@ useEffect(() => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 pb-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 pb-8 bg-none">
         <MenuList
          groupedItems={groupedItems()}
           categories={categories}
@@ -307,14 +308,12 @@ useEffect(() => {
           handlePlaceOrder={handlePlaceOrder}
           selectedTable={selectedTable}
           setShowCart={setShowCart}
-
-          
         />
       )}
 
       {showTableSelection && (
         <TableSelectionModal
-          tables={tables}
+          // tables={tables}
           setSelectedTable={setSelectedTable}
           setShowTableSelection={setShowTableSelection}
         />

@@ -6,7 +6,7 @@ const StickyCartButton = ({ onClick, itemCount }) => (
     <div>
       <p className="text-sm font-medium">Items: {itemCount}</p>
     </div>
-    <button type="button" onClick={onClick} className="bg-green-500 text-white px-4 py-2 rounded">
+    <button type="button" onClick={onClick} className=" bg-green-500 text-white px-4 py-2 rounded">
       View Cart
     </button>
   </div>

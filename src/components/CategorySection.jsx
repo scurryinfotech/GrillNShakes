@@ -12,13 +12,12 @@ const CategorySection = ({
   updateCartQuantity
 }) => (
 
-  <div className="px-4">
-    <button
-  onClick={() => {
-    console.log("Category clicked:", categoryName);
+  <div className="px-4 ">
+    <button onClick={() => {
+    // console.log("Category clicked:", categoryName);
     toggleCategory(categoryName);
   }}
-  className="text-lg  font-semibold mt-4 mb-2 text-black bg-gray-100 px-4 py-2 rounded shadow w-full text-left cursor-pointer"
+  className="text-lg  font-semibold mt-3d mb-2 text-black bg-gray-100 px-4 py-2 rounded shadow w-full text-left cursor-pointer"
 >
   {categoryName} {expanded ? '▲' : '▼'}
 </button>
