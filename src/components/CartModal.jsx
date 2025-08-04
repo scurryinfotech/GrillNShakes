@@ -2,9 +2,9 @@ import React from 'react';
 import { Plus, Minus, Trash2, MapPin } from 'lucide-react';
 
 const CartModal = ({ cart, updateCartQuantity, removeFromCart, handlePlaceOrder, selectedTable, setShowCart }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+  <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
     <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] sm:max-h-[80vh] overflow-y-auto shadow-xl">
-      <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-t-lg">
+      <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-lg">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold">Your Cart</h2>
           <button
@@ -65,7 +65,7 @@ const CartModal = ({ cart, updateCartQuantity, removeFromCart, handlePlaceOrder,
               
               <button
                 onClick={handlePlaceOrder}
-                className="w-full bg-gradient-to-r from-teal-600 to-teal-700 text-white py-3 rounded-lg font-semibold hover:from-teal-700 hover:to-teal-800 transition-all duration-200 text-sm sm:text-base shadow-md"
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg font-semibold hover:from-teal-700 hover:to-teal-800 transition-all duration-200 text-sm sm:text-base shadow-md"
               >
                 {selectedTable ? 'Place Order' : 'Select Table & Order'}
               </button>

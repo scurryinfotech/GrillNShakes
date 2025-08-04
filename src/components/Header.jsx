@@ -2,7 +2,7 @@ import React from 'react';
 import { ShoppingCart } from 'lucide-react';
 
 const Header = ({ getCartItemCount, setShowCart }) => (
-  <header className=" sticky top-0 bg-white z-40 bg-gradient-to-r from-teal-600 to-teal-700 text-white p-3 sm:p-4 shadow-lg">
+  <header className=" sticky top-0 bg-white z-50 bg-gradient-to-r from-teal-600 to-teal-700 text-white p-3 sm:p-4 shadow-lg">
     <div className="max-w-7xl mx-auto flex items-center justify-between">
       <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Grill N Shakes</h1>
       <button

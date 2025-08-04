@@ -7,6 +7,7 @@ const SearchBar = ({ searchTerm, setSearchTerm }) => (
     <Search className="absolute left-3 top-3 text-gray-400" size={18} />
     <input
       type="text"
+      id="search"
       placeholder="Search for food items..."
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
