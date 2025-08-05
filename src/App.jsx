@@ -5,11 +5,13 @@ import SearchBar from "./components/SearchBar";
 import CategoryButtons from "./components/CategoryButtons";
 import MenuList from "./components/menuList";
 import CartModal from "./components/CartModal";
-import MenuItems from "./components/MenuItems.jsx";
+// import MenuItems from "./components/MenuItems.jsx";
 import TableSelectionModal from "./components/TableSelectionModal";
 import StickyCartButton from "./components/StickyCartButton.jsx";
 // import { tables } from './data/menuData';
 import Loader from "./components/Loader.jsx";
+import { useLocation } from "react-router-dom";
+
 
 
 
@@ -25,32 +27,68 @@ import Loader from "./components/Loader.jsx";
   const [expandedCategories, setExpandedCategories] = useState({});
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+const queryParams = new URLSearchParams(location.search);
+const tableFromURL = queryParams.get("table");
   // const [tables, setTables] = useState([]);
 
-  const handlePlaceOrder = async () => {
-    if (!selectedTable) {
-      setShowTableSelection(true);
+// ⬇️ In the parent component where <CartModal /> is used
+const handlePlaceOrder = async () => {
+  try {
+    const  token =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdyaWxsX05fU2hha2VzIiwibmJmIjoxNzUxMjA5MTg4LCJleHAiOjE3NTg5ODUxODgsImlhdCI6MTc1MTIwOTE4OH0.H2XoHKLvlrM8cpb68ht18K2Mkj6PVnSSd-tM4HmMIfI";
+
+         // Or from state/context
+
+    if (!token) {
+      alert("User not authenticated");
       return;
     }
-    const token = localStorage.getItem(
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdyaWxsX05fU2hha2VzIiwibmJmIjoxNzUxMjA5MTg4LCJleHAiOjE3NTg5ODUxODgsImlhdCI6MTc1MTIwOTE4OH0.H2XoHKLvlrM8cpb68ht18K2Mkj6PVnSSd-tM4HmMIfI"
-    );
 
-    try {
-      await axios.post("https://localhost:7104/api/Order/Post", {
+    if (!selectedTable) {
+      alert("Please select a table");
+      return;
+    }
+const orderData = {
+  userName: String(2),
+  selectedTable:
+    selectedTable.TableNo ||
+    selectedTable.tableNo ||
+    selectedTable.id ||
+    selectedTable,
+
+  orderItems: cart.map(item => ({
+    item_id: item.id, // ✅ Sending numeric ID"", // fallback
+    full: item.size === "full" ? item.quantity : 0,
+    half: item.size === "half" ? item.quantity : 0
+  }))
+};
+console.log("Payload I'm sending to backend:", JSON.stringify(orderData, null, 2));
+
+    console.log("✅ Order placed successfully:", orderData  );
+
+    const response = await axios.post(
+      "https://localhost:7104/api/Order/Post",
+      orderData,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
-        },
-      });
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-      // alert("✅ Order placed successfully!");
-      setCart([]);
-      setShowCart(false);
-      setSelectedTable("");
-    } catch (error) {
-      console.error("❌ Order failed:", error);
-    }
-  };
+    console.log("✅ Order placed successfully:", response.data);
+    alert("Order placed successfully!");
+    setCart([]);         // Optional: clear cart
+    setShowCart(false);  // Optional: close cart modal
+
+  } catch (error) {
+    console.error("❌ Failed to place order:", error.response?.data || error.message);
+    alert(JSON.stringify(error.response?.data.errors, null, 2));
+  }
+};
+
 
 
   useEffect(() => {
@@ -135,6 +173,13 @@ import Loader from "./components/Loader.jsx";
     fetchData();
   }, []);
    
+useEffect(() => {
+  if (tableFromURL) {
+    setSelectedTable(tableFromURL);
+    setShowTableSelection(false);  // Table select modal ko band karega
+    console.log("✅ Table auto-selected:", tableFromURL);
+  }
+}, [tableFromURL]);
 
 
 
@@ -295,11 +340,11 @@ import Loader from "./components/Loader.jsx";
         <div className="text-black-500 text-center mt-10">Error Occured While Loading Data</div>
       ) : (
         <>
-          <div className="max-w-7xl mx-auto p-3 sm:p-4 bg-none">
+          <div className="sticky top-14 z-20 bg-white max-w-7xl mx-auto p-3 sm:p-4 shadow-md">
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
           
-          <div className=" sticky top-14 bg-white z-5 pt-2 pr-0.5 pb-2 pl-0.5 ">
+          <div className=" sticky top-28 bg-white z-5 pt-2 pr-0.5 pb-2 pl-0.5">
             <CategoryButtons
               categories={categories}
               toggleCategory={toggleCategory}
@@ -332,21 +377,18 @@ import Loader from "./components/Loader.jsx";
             />
           )}
 
-          {showTableSelection && (
-            <TableSelectionModal
-              // tables={tables}
-              setSelectedTable={setSelectedTable}
-              setShowTableSelection={setShowTableSelection}
-            />
-          )}
+          {showTableSelection && !selectedTable && (
+  <TableSelectionModal
+    setSelectedTable={setSelectedTable}
+    setShowTableSelection={setShowTableSelection}
+  />
+)}
 
           {/* ✅ Sticky Cart Button appears only when cart has items */}
-          {cart.length > 0 && (
-            <StickyCartButton
+          <StickyCartButton
               itemCount={getCartItemCount()}
               onClick={() => setShowCart(true)}
             />
-          )}
         </>
       )}
     </div>

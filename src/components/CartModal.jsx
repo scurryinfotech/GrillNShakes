@@ -54,21 +54,24 @@ const CartModal = ({ cart, updateCartQuantity, removeFromCart, handlePlaceOrder,
             <div className="mt-4 pt-4 ">
             
               
-              {selectedTable && (
-                <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <MapPin size={16} />
-                    <span className="text-sm sm:text-base font-semibold">Selected: {selectedTable}</span>
-                  </div>
-                </div>
-              )}
-              
-              <button
-                onClick={handlePlaceOrder}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg font-semibold hover:from-teal-700 hover:to-teal-800 transition-all duration-200 text-sm sm:text-base shadow-md"
-              >
-                {selectedTable ? 'Place Order' : 'Select Table & Order'}
-              </button>
+              <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+  <div className="flex items-center gap-2 text-green-700">
+    <MapPin size={16} />
+    <span className="text-sm sm:text-base font-semibold">
+      Table: {selectedTable || "Not Selected"}
+    </span>
+  </div>
+</div>
+
+<button
+  onClick={handlePlaceOrder}
+  disabled={!selectedTable}  // ✅ Disable button if no table
+  className={`w-full py-3 rounded-lg font-semibold text-sm sm:text-base shadow-md transition-all duration-200 
+    ${selectedTable ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-teal-700 hover:to-teal-800' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+>
+  Place Order
+</button>
+
             </div>
           </>
         )}
