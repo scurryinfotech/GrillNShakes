@@ -12,7 +12,7 @@ const CategorySection = ({
   updateCartQuantity
 }) => (
 
-  <div className="px-4 ">
+  <div className="mb-1">
     <button onClick={() => {
     // console.log("Category clicked:", categoryName);
     toggleCategory(categoryName);

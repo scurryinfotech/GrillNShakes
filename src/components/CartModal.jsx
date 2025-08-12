@@ -25,7 +25,7 @@ const CartModal = ({ cart, updateCartQuantity, removeFromCart, handlePlaceOrder,
               <div key={item.id} className="flex items-center justify-between py-3 border-b gap-3 hover:bg-gray-50 px-2 rounded">
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-sm sm:text-base truncate">{item.name}</h4>
-                  <p className="text-xs sm:text-sm text-gray-600">{item.size} - ₹{item.price}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{item.size} </p> {/*- ₹{item.price*/}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button

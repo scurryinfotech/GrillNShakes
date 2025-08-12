@@ -1,5 +1,6 @@
 import React from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { Plus,Minus } from 'lucide-react';
+
 
 
 const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, updateCartQuantity }) => {
@@ -7,12 +8,13 @@ const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, upd
     <div className="flex items-center gap-4 p-4 border border-gray-300 rounded-lg hover:shadow-md transition-shadow bg-gray-50">
 
       {/* ✅ Image Left Side */}
-      <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center shadow-md">
+      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex items-center flex-shrink-0 justify-center shadow-md">
         {item.imageData ? (
           <img
             src={`data:image/jpeg;base64,${item.imageData}`}
             alt={item.name}
-            className="w-full h-full  object-cover"
+            className="w-full h-full object-cover rounded-full"
+            loading="lazy"
           />
         ) : (
           <span className="text-2xl">🍽️</span>
@@ -20,24 +22,27 @@ const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, upd
       </div>
 
       {/* ✅ Right Side Content */}
-      <div className="flex flex-col-2 gap-3 sm:gap-6 md:gap-8  flex-grow ">
+      <div className="flex flex-col  gap-2 flex-grow justify-between">
+
 
         {/* Item Name & Subcategory */}
-        <div className="mb-3 flex-col flex">
-          <h3 className="text-sm font-semibold text-gray-800 ">{item.name}</h3>
-          <p className="text-xs text-gray-500 uppercase">{subcategoryName}</p>
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold break-words ">{item.name}</h3>
+          <p className="text-sm text-gray-500 ">{subcategoryName}</p>
         </div>
 
+
         {/* Prices & Add to Cart buttons */}
-        <div className="pl-5 flex flex-wrap gap-2">
+       <div className="flex gap-1 flex-wrap  justify-end">
+
           {Object.entries(item.prices)
             .map(([key, value]) => [key.toLowerCase(), value])
             .filter(([, price]) => price > 0)
             .map(([size, price]) => {
               const quantity = getItemQuantityInCart(item.id, size);
               return (
-                //set width
-                <div key={size} className="h-12  mt-2 flex items-center justify-between border border-gray-300 rounded-md px-2 py-1 w-32 bg-white shadow-sm">
+
+            <div key={size} className="h-12  mt-2 flex items-center justify-between border border-gray-300 rounded-md px-2 py-1 w-32 bg-white shadow-sm">
                   <span className=" text-xs font-medium ">{size} - ₹{price}</span>
 
                   <div className="flex items-center gap-1">  
@@ -68,6 +73,7 @@ const MenuItem = ({ item, subcategoryName, getItemQuantityInCart, addToCart, upd
 
       </div>
     </div>
+
   );
 };
 

@@ -32,7 +32,7 @@ const queryParams = new URLSearchParams(location.search);
 const tableFromURL = queryParams.get("table");
   // const [tables, setTables] = useState([]);
 
-// ⬇️ In the parent component where <CartModal /> is used
+//  In the parent component where <CartModal /> is used
 const handlePlaceOrder = async () => {
   try {
     const  token =
@@ -50,15 +50,11 @@ const handlePlaceOrder = async () => {
       return;
     }
 const orderData = {
-  userName: String(2),
-  selectedTable:
-    selectedTable.TableNo ||
-    selectedTable.tableNo ||
-    selectedTable.id ||
-    selectedTable,
-
+  selectedTable: selectedTable.TableNo || selectedTable.tableNo || selectedTable.id || selectedTable,
+  userName: 2, // or actual username
   orderItems: cart.map(item => ({
-    item_id: item.id, // ✅ Sending numeric ID"", // fallback
+    price: item.price,
+    item_id: parseInt(item.id),
     full: item.size === "full" ? item.quantity : 0,
     half: item.size === "half" ? item.quantity : 0
   }))
@@ -183,34 +179,49 @@ useEffect(() => {
 
 
 
-  const getFilteredItems = () => {
-    let allItems = [];
+const categoryMap = {};
+categories.forEach(cat => {
+  categoryMap[cat.categoryId] = cat.categoryName;
+});
 
-    if (searchTerm) {
-      Object.values(subcategories).forEach((categorySubcategories) => {
-        categorySubcategories.forEach((subcategory) => {
-          const subId =
-            subcategory.id || subcategory.subcategoryId || subcategory.subCatId;
-          const items = menuItems[Number(subId)] || [];
+const getFilteredItems = () => {
+  let allItems = [];
 
-          allItems = allItems.concat(
-            items.map((item) => ({
-              ...item,
-              subcategoryName:
-                subcategory.subcategoryName || subcategory.name || "Unknown",
-              categoryId: subcategory.categoryId,
-            }))
-          );
-        });
-      });
+  // Loop through subcategories and collect all items
+  Object.values(subcategories).forEach((categorySubcategories) => {
+    categorySubcategories.forEach((subcategory) => {
+      const subId =
+        subcategory.id || subcategory.subcategoryId || subcategory.subCatId;
+      const items = menuItems[Number(subId)] || [];
 
-      return allItems.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      allItems = allItems.concat(
+        items.map((item) => ({
+          ...item,
+          subcategoryName:
+            subcategory.subcategoryName || subcategory.name || "Unknown",
+          categoryId: subcategory.categoryId,
+          categoryName: categoryMap[subcategory.categoryId] || "" // Optional if you have a category map
+        }))
       );
-      
-    }
-  };
-  
+    });
+  });
+
+  // If there's no search term, return all items
+  if (!searchTerm) {
+    return allItems;
+  }
+
+  // Filter based on item name, subcategory name, or category name
+  return allItems.filter((item) => {
+    const lowerSearch = searchTerm.toLowerCase();
+    return (
+      item.name?.toLowerCase().includes(lowerSearch) ||
+      item.subcategoryName?.toLowerCase().includes(lowerSearch) ||
+      item.categoryName?.toLowerCase().includes(lowerSearch)
+    );
+  });
+};
+
 
   const addToCart = (item, size) => {
     const cartItem = {
@@ -330,7 +341,7 @@ useEffect(() => {
   };
 
   return (
-    <div className=" min-h-screen bg-gray-50 relative scroll-pt-[128px] scroll-smooth">
+    <div className=" min-h-screen bg-white relative scroll-pt-[128px] scroll-smooth ">
       <Header getCartItemCount={getCartItemCount}  setShowCart={setShowCart} />
       
 
@@ -353,7 +364,7 @@ useEffect(() => {
           </div>
           
 
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 pb-8 bg-none overflow-auto">
+          <div className="max-w-7xl w-100% mx-auto px-3 sm:px-4 pb-8 bg-none overflow-auto">
             <MenuList
               groupedItems={groupedItems()}
               categories={categories}

@@ -2,7 +2,7 @@
 import React from 'react';
 
 const StickyCartButton = ({ onClick, itemCount }) => (
-  <div className="fixed bottom-0 left-0 right-0 bg-white p-3 border-t shadow-md flex justify-between items-center">
+  <div className="fixed bottom-0 left-0 right-0 bg-white p-3 border-t shadow-md flex justify-between items-center h-13">
     <div>
       <p className="text-sm font-medium">Items: {itemCount}</p>
     </div>
