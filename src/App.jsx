@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import CategoryButtons from "./components/CategoryButtons";
-import MenuList from "./components/menuList";
+import MenuList from "./components/MenuList";
 import CartModal from "./components/CartModal";
-// import MenuItems from "./components/MenuItems.jsx";
 import TableSelectionModal from "./components/TableSelectionModal";
 import StickyCartButton from "./components/StickyCartButton.jsx";
-// import { tables } from './data/menuData';
 import Loader from "./components/Loader.jsx";
 import { useLocation } from "react-router-dom";
 
-
-
-
-  const RestaurantApp = () => {
+const RestaurantApp = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState({});
   const [menuItems, setMenuItems] = useState({});
@@ -27,66 +22,69 @@ import { useLocation } from "react-router-dom";
   const [expandedCategories, setExpandedCategories] = useState({});
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const location = useLocation();
-const queryParams = new URLSearchParams(location.search);
-const tableFromURL = queryParams.get("table");
-  // const [tables, setTables] = useState([]);
+  const queryParams = new URLSearchParams(location.search);
+  const tableFromURL = queryParams.get("table");
 
-//  In the parent component where <CartModal /> is used
-const handlePlaceOrder = async () => {
-  try {
-    const  token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdyaWxsX05fU2hha2VzIiwibmJmIjoxNzUxMjA5MTg4LCJleHAiOjE3NTg5ODUxODgsImlhdCI6MTc1MTIwOTE4OH0.H2XoHKLvlrM8cpb68ht18K2Mkj6PVnSSd-tM4HmMIfI";
+  // ---- Place Order ----
+  const handlePlaceOrder = async () => {
+    try {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdyaWxsX05fU2hha2VzIiwibmJmIjoxNzUxMjA5MTg4LCJleHAiOjE3NTg5ODUxODgsImlhdCI6MTc1MTIwOTE4OH0.H2XoHKLvlrM8cpb68ht18K2Mkj6PVnSSd-tM4HmMIfI";
 
-         // Or from state/context
-
-    if (!token) {
-      alert("User not authenticated");
-      return;
-    }
-
-    if (!selectedTable) {
-      alert("Please select a table");
-      return;
-    }
-const orderData = {
-  selectedTable: selectedTable.TableNo || selectedTable.tableNo || selectedTable.id || selectedTable,
-  userName: 2, // or actual username
-  orderItems: cart.map(item => ({
-    price: item.price,
-    item_id: parseInt(item.id),
-    full: item.size === "full" ? item.quantity : 0,
-    half: item.size === "half" ? item.quantity : 0
-  }))
-};
-console.log("Payload I'm sending to backend:", JSON.stringify(orderData, null, 2));
-
-    console.log("✅ Order placed successfully:", orderData  );
-
-    const response = await axios.post(
-      "https://localhost:7104/api/Order/Post",
-      orderData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      if (!token) {
+        alert("User not authenticated");
+        return;
       }
-    );
+      if (!selectedTable) {
+        alert("Please select a table");
+        return;
+      }
 
-    console.log("✅ Order placed successfully:", response.data);
-    alert("Order placed successfully!");
-    setCart([]);         // Optional: clear cart
-    setShowCart(false);  // Optional: close cart modal
+      const orderData = {
+        selectedTable:
+          selectedTable.TableNo ||
+          selectedTable.tableNo ||
+          selectedTable.id ||
+          selectedTable,
+        userName: 2,
+        orderItems: cart.map((item) => ({
+          price: item.price,
+          item_id: parseInt(item.id),
+          full: item.size === "full" ? item.quantity : 0,
+          half: item.size === "half" ? item.quantity : 0,
+        })),
+      };
+      console.log("📤 Sending order to API:", orderData);
 
-  } catch (error) {
-    console.error("❌ Failed to place order:", error.response?.data || error.message);
-    alert(JSON.stringify(error.response?.data.errors, null, 2));
-  }
-};
+      const response = await axios.post(
+        "https://localhost:7104/api/Order/Post",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
+      console.log("✅ Order placed successfully:", response.data);
+      alert("Order placed successfully!");
+      setCart([]);
+      setShowCart(false);
+    } catch (error) {
+      console.error(
+        "❌ Failed to place order:",
+        error.response?.data || error.message
+      );
+      alert(
+        JSON.stringify(error.response?.data?.errors || error.message, null, 2)
+      );
+    }
+  };
 
-
+  // ---- Fetch Data ----
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -96,277 +94,255 @@ console.log("Payload I'm sending to backend:", JSON.stringify(orderData, null, 2
         const [catRes, subcatRes, itemRes] = await Promise.all([
           axios.get(
             "https://localhost:7104/api/Order/GetMenuCategory?username=Grill_N_Shakes",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           ),
           axios.get(
             "https://localhost:7104/api/Order/GetMenuSubcategory?username=Grill_N_Shakes",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           ),
           axios.get(
             "https://localhost:7104/api/Order/GetMenuItem?username=Grill_N_Shakes",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           ),
-          //        axios.get("https://localhost:7104/api/Order/GetTables?username=Grill_N_Shakes", {
-          //   headers: { Authorization: `Bearer ${token}` }
-          // })
         ]);
 
-        setCategories(catRes.data);
-        const initialExpanded = {};
-        catRes.data.forEach((cat) => {
-          initialExpanded[cat.categoryName] = true;
-        });
+        // Categories
+        setCategories(catRes.data || []);
 
-        // setTables(tableRes.data);
+        // Expand ALL categories by default (keyed by categoryId)
+        const initialExpanded = {};
+        (catRes.data || []).forEach((cat) => {
+          initialExpanded[cat.categoryId] = true;
+        });
         setExpandedCategories(initialExpanded);
 
-        const grouped = {};
-        subcatRes.data.forEach((sub) => {
+        // Group subcategories by categoryId
+        const groupedSubcats = {};
+        (subcatRes.data || []).forEach((sub) => {
           const catId = Number(sub.categoryId);
-          if (!grouped[catId]) grouped[catId] = [];
-          grouped[catId].push(sub);
+          if (!groupedSubcats[catId]) groupedSubcats[catId] = [];
+          groupedSubcats[catId].push(sub);
         });
-        setSubcategories(grouped);
+        setSubcategories(groupedSubcats);
 
+        // Group items by subcategoryId, normalize fields
         const groupedItemsBySubcategory = {};
-        itemRes.data.forEach((item) => {
+        (itemRes.data || []).forEach((item) => {
           const subId = Number(item.subcategoryId);
-          if (!groupedItemsBySubcategory[subId]) {
+          if (!groupedItemsBySubcategory[subId])
             groupedItemsBySubcategory[subId] = [];
-          }
           groupedItemsBySubcategory[subId].push({
             ...item,
-            name: item.itemName,
             id: item.itemId,
+            name: item.itemName, // ✅ always set name for search
             imageData:
-              item.imageSrc && item.imageSrc.startsWith("")
-                ? item.imageSrc
-                : null, // since your data uses itemName
+              item.imageSrc && item.imageSrc.length > 50 ? item.imageSrc : null,
             prices: {
-              Full: item.price1,
-              Half: item.price2,
+              full: item.price1 || 0,
+              half: item.price2 || 0,
             },
           });
         });
-        
-
         setMenuItems(groupedItemsBySubcategory);
-      } catch (error) {
-        console.error("❌ Error fetching data:", error);
-        setError(error);
-      }
-      finally {
-        setIsLoading(false); // ✅ Stop loader
+      } catch (err) {
+        console.error("❌ Error fetching data:", err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
-   
-useEffect(() => {
-  if (tableFromURL) {
-    setSelectedTable(tableFromURL);
-    setShowTableSelection(false);  // Table select modal ko band karega
-    console.log("✅ Table auto-selected:", tableFromURL);
-  }
-}, [tableFromURL]);
 
+  // Auto select table from URL
+  
+  useEffect(() => {
+    if (tableFromURL) {
+      setSelectedTable(tableFromURL);
+      setShowTableSelection(false);
+      console.log("✅ Table auto-selected:", tableFromURL);
+    }
+  }, [tableFromURL]);
 
+  // categoryId -> categoryName map
+  const categoryMap = useMemo(() => {
+    const map = {};
+    categories.forEach((cat) => (map[cat.categoryId] = cat.categoryName));
+    return map;
+  }, [categories]);
 
-const categoryMap = {};
-categories.forEach(cat => {
-  categoryMap[cat.categoryId] = cat.categoryName;
-});
+  // Flatten & filter items once per render
+  const filteredFlatItems = useMemo(() => {
+    const lowerSearch = searchTerm.trim().toLowerCase();
+    let all = [];
 
-const getFilteredItems = () => {
-  let allItems = [];
+    Object.values(subcategories).forEach((subsOfCat) => {
+      subsOfCat.forEach((sub) => {
+        const subId = Number(sub.subcategoryId || sub.id || sub.subCatId);
+        const items = menuItems[subId] || [];
+        const subName = sub.subcategoryName || sub.name || "Unknown";
+        const catId = Number(sub.categoryId);
+        const catName = categoryMap[catId] || "";
 
-  // Loop through subcategories and collect all items
-  Object.values(subcategories).forEach((categorySubcategories) => {
-    categorySubcategories.forEach((subcategory) => {
-      const subId =
-        subcategory.id || subcategory.subcategoryId || subcategory.subCatId;
-      const items = menuItems[Number(subId)] || [];
-
-      allItems = allItems.concat(
-        items.map((item) => ({
-          ...item,
-          subcategoryName:
-            subcategory.subcategoryName || subcategory.name || "Unknown",
-          categoryId: subcategory.categoryId,
-          categoryName: categoryMap[subcategory.categoryId] || "" // Optional if you have a category map
-        }))
-      );
+        items.forEach((it) => {
+          all.push({
+            ...it,
+            subcategoryName: subName,
+            categoryId: catId,
+            categoryName: catName,
+          });
+        });
+      });
     });
-  });
 
-  // If there's no search term, return all items
-  if (!searchTerm) {
-    return allItems;
-  }
+    if (!lowerSearch) return all;
 
-  // Filter based on item name, subcategory name, or category name
-  return allItems.filter((item) => {
-    const lowerSearch = searchTerm.toLowerCase();
-    return (
-      item.name?.toLowerCase().includes(lowerSearch) ||
-      item.subcategoryName?.toLowerCase().includes(lowerSearch) ||
-      item.categoryName?.toLowerCase().includes(lowerSearch)
+    return all.filter(
+      (it) =>
+        it.name?.toLowerCase().includes(lowerSearch) ||
+        it.subcategoryName?.toLowerCase().includes(lowerSearch) ||
+        it.categoryName?.toLowerCase().includes(lowerSearch)
     );
-  });
-};
+  }, [subcategories, menuItems, categoryMap, searchTerm]);
 
+  // Grouped items for MenuList
+  const groupedItemsForList = useMemo(() => {
+    const grouped = {};
 
+    if (searchTerm.trim()) {
+      // Group only filtered items
+      filteredFlatItems.forEach((item) => {
+        const catName = item.categoryName || "Uncategorized";
+        const subName = item.subcategoryName || "Uncategorized";
+
+        if (!grouped[catName]) grouped[catName] = {};
+        if (!grouped[catName][subName]) grouped[catName][subName] = [];
+        grouped[catName][subName].push(item);
+      });
+
+      // During search, keep all categories visually expanded
+      // (no state change needed — CategorySection will render regardless)
+      return grouped;
+    }
+
+    // No search: group by categories -> subcategories from source structures
+    categories.forEach((cat) => {
+      const catSubs = subcategories[cat.categoryId] || [];
+      catSubs.forEach((sub) => {
+        const subId = Number(sub.subcategoryId || sub.id || sub.subCatId);
+        const subName = sub.subcategoryName || sub.name || "Uncategorized";
+        const items = (menuItems[subId] || []).map((it) => ({
+          ...it,
+          subcategoryName: subName,
+          categoryId: cat.categoryId,
+          categoryName: cat.categoryName,
+        }));
+
+        if (items.length) {
+          if (!grouped[cat.categoryName]) grouped[cat.categoryName] = {};
+          grouped[cat.categoryName][subName] = items;
+        }
+      });
+    });
+
+    return grouped;
+  }, [categories, subcategories, menuItems, filteredFlatItems, searchTerm]);
+
+  // --- Cart helpers ---
   const addToCart = (item, size) => {
+    const cartId = `${item.id}-${size}`;
     const cartItem = {
-      id: `${item.id}-${size}`,
+      id: cartId,
       name: item.name,
-      size: size,
+      size,
       price: item.prices[size],
       quantity: 1,
       subcategoryName: item.subcategoryName,
     };
 
-    setCart((prevCart) => {
-      const existingItem = prevCart.find(
-        (cartItem) => cartItem.id === `${item.id}-${size}`
-      );
-      if (existingItem) {
-        return prevCart.map((cartItem) =>
-          cartItem.id === `${item.id}-${size}`
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
+    setCart((prev) => {
+      const existing = prev.find((ci) => ci.id === cartId);
+      if (existing) {
+        return prev.map((ci) =>
+          ci.id === cartId ? { ...ci, quantity: ci.quantity + 1 } : ci
         );
       }
-      return [...prevCart, cartItem];
+      return [...prev, cartItem];
     });
   };
 
-  const updateCartQuantity = (itemId, newQuantity) => {
-    if (newQuantity === 0) {
-      setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+  const updateCartQuantity = (itemId, newQty) => {
+    if (newQty === 0) {
+      setCart((prev) => prev.filter((it) => it.id !== itemId));
     } else {
-      setCart((prevCart) =>
-        prevCart.map((item) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
+      setCart((prev) =>
+        prev.map((it) => (it.id === itemId ? { ...it, quantity: newQty } : it))
       );
     }
   };
 
-  const removeFromCart = (itemId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
-  };
+  const removeFromCart = (itemId) =>
+    setCart((prev) => prev.filter((it) => it.id !== itemId));
 
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
+  const getCartTotal = () =>
+    cart.reduce((total, it) => total + it.price * it.quantity, 0);
 
-  const getCartItemCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
-  };
+  const getCartItemCount = () =>
+    cart.reduce((count, it) => count + it.quantity, 0);
 
   const getItemQuantityInCart = (itemId, size) => {
-    const cartItem = cart.find((item) => item.id === `${itemId}-${size}`);
-    return cartItem ? cartItem.quantity : 0;
+    const found = cart.find((it) => it.id === `${itemId}-${size}`);
+    return found ? found.quantity : 0;
   };
 
-  const toggleCategory = (categoryName) => {
-    setExpandedCategories((prev) => {
-      const isAlreadyExpanded = !!prev[categoryName];
-      return isAlreadyExpanded
-        ? {} // close all if clicked again
-        : { [categoryName]: true }; // open only one
-    });
-  };
-
-  // const handlePlaceOrder = () => {
-  //   if (!selectedTable) {
-  //     setShowTableSelection(true);
-  //     return;
-  //   }
-  //   alert(`Order placed for ${selectedTable}!\n\nItems: ${cart.length}\nTotal: ₹${getCartTotal()}`);
-  //   setCart([]);
-  //   setShowCart(false);
-  //   setSelectedTable('');
-  // };
-
-  const groupedItems = () => {
-    const filtered = getFilteredItems();
-    const grouped = {};
-
-    if (searchTerm) {
-      filtered.forEach((item) => {
-        const categoryName =
-          categories.find((cat) => cat.categoryId === item.categoryId)
-            ?.categoryName || "Unknown";
-        const subName = item.subcategoryName || "Uncategorized ";
-
-        if (!grouped[categoryName]) grouped[categoryName] = {};
-        if (!grouped[categoryName][subName])
-          grouped[categoryName][subName] = [];
-
-        grouped[categoryName][subName].push(item);
-      });
-    } else {
-      categories.forEach((category) => {
-        const categorySubcategories = subcategories[category.categoryId] || [];
-        categorySubcategories.forEach((subcategory) => {
-          const subId =
-            subcategory.subcategoryId || subcategory.id || subcategory.subCatId;
-          const subName =
-            subcategory.subcategoryName || subcategory.name || "Uncategorized";
-          const items = menuItems[Number(subId)] || [];
-
-          if (items.length > 0) {
-            if (!grouped[category.categoryName])
-              grouped[category.categoryName] = {};
-            grouped[category.categoryName][subName] = items.map((item) => ({
-              ...item,
-              subcategoryName: subName,
-              categoryId: category.categoryId,
-            }));
-          }
-        });
-      });
-    }
-
-    return grouped;
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
   };
 
   return (
-    <div className=" min-h-screen bg-white relative scroll-pt-[128px] scroll-smooth ">
-      <Header getCartItemCount={getCartItemCount}  setShowCart={setShowCart} />
-      
+    <div className="min-h-screen bg-white relative scroll-smooth">
+      <Header getCartItemCount={getCartItemCount} setShowCart={setShowCart} />
 
-      { isLoading ? (
-      <Loader />  // ✅ Loader appears under header
-    ) :error ? (
-        <div className="text-black-500 text-center mt-10">Error Occured While Loading Data</div>
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <div className="text-black-500 text-center mt-10">
+          Error Occured While Loading Data
+        </div>
       ) : (
         <>
+          {/* Search */}
           <div className="sticky top-14 z-20 bg-white max-w-7xl mx-auto p-3 sm:p-4 shadow-md">
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
-          
-          <div className=" sticky top-28 bg-white z-5 pt-2 pr-0.5 pb-2 pl-0.5">
+
+          {/* Category Buttons */}
+          <div className="sticky top-28 bg-white z-10 pt-2 pr-0.5 pb-2 pl-0.5">
             <CategoryButtons
               categories={categories}
-              toggleCategory={toggleCategory}
+              toggleCategory={(id) => {
+                // ensure expanded before scroll
+                setExpandedCategories((prev) => ({ ...prev, [id]: true }));
+                // smooth scroll to the section
+                const section = document.getElementById(`menu-category-${id}`);
+                if (section)
+                  section.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+              }}
               expandedCategories={expandedCategories}
             />
           </div>
-          
 
-          <div className="max-w-7xl w-100% mx-auto px-3 sm:px-4 pb-8 bg-none overflow-auto">
+          {/* Menu List */}
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 pb-8">
             <MenuList
-              groupedItems={groupedItems()}
+              groupedItems={groupedItemsForList}
               categories={categories}
               expandedCategories={expandedCategories}
               toggleCategory={toggleCategory}
@@ -389,20 +365,20 @@ const getFilteredItems = () => {
           )}
 
           {showTableSelection && !selectedTable && (
-  <TableSelectionModal
-    setSelectedTable={setSelectedTable}
-    setShowTableSelection={setShowTableSelection}
-  />
-)}
-
-          {/* ✅ Sticky Cart Button appears only when cart has items */}
-          <StickyCartButton
-              itemCount={getCartItemCount()}
-              onClick={() => setShowCart(true)}
+            <TableSelectionModal
+              setSelectedTable={setSelectedTable}
+              setShowTableSelection={setShowTableSelection}
             />
+          )}
+
+          <StickyCartButton
+            itemCount={getCartItemCount()}
+            onClick={() => setShowCart(true)}
+          />
         </>
       )}
     </div>
   );
 };
+
 export default RestaurantApp;

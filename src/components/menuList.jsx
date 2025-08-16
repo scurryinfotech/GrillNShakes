@@ -1,6 +1,5 @@
-// src/components/MenuList.jsx
-import React from 'react';
-import CategorySection from './CategorySection';
+import React from "react";
+import CategorySection from "./CategorySection";
 
 const MenuList = ({
   groupedItems,
@@ -9,19 +8,22 @@ const MenuList = ({
   getItemQuantityInCart,
   addToCart,
   updateCartQuantity,
-  categories
-}) => { 
+  categories,
+}) => {
   return (
     <div>
       {Object.entries(groupedItems).map(([categoryName, subcategories]) => {
-        const categoryId = categories.find(cat => cat.categoryName === categoryName)?.categoryId;
+        const category =
+          categories.find((c) => c.categoryName === categoryName) || {};
+        const categoryId = category.categoryId;
 
         return (
-          <div key={categoryName} id={`category-${categoryId}`} className="scroll-mt-24">
+          <div key={categoryId || categoryName}>
             <CategorySection
+              categoryId={categoryId}
               categoryName={categoryName}
               subcategories={subcategories}
-              expanded={expandedCategories[categoryName]}
+              expanded={!!expandedCategories[categoryId]}
               toggleCategory={toggleCategory}
               getItemQuantityInCart={getItemQuantityInCart}
               addToCart={addToCart}
