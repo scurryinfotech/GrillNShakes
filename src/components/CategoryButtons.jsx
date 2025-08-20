@@ -1,6 +1,6 @@
 import React from "react";
 
-const categoryColors = {
+ const categoryColors = {
   CHINESE: "#4CAF50",
   PIZZA: "#FFB300",
   SANDWICH: "#F06292",

@@ -41,7 +41,7 @@ const MenuItems = ({ item, subcategoryName, getItemQuantityInCart, addToCart, up
                   key={size}
                   className="flex items-center justify-between border border-gray-300 rounded-md px-2 py-1 bg-gray-50 shadow-sm w-[120px] h-10"
                 >
-                  <span className="text-xs font-medium">{size} - ₹{price}</span>
+                  <span className="text-xs font-medium capitalize">{size} - ₹{price}</span>
 
                   <div className="flex items-center gap-1">
                     {quantity > 0 && (

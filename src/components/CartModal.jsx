@@ -39,8 +39,8 @@ const CartModal = ({
                   <h4 className="font-semibold text-sm sm:text-base truncate">
                     {item.name}
                   </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    {item.size}{" "}
+                  <p className="text-xs sm:text-sm text-gray-600 capitalize">
+                    {item.size}{" Portion"}
                   </p>{" "}
                   {/*- ₹{item.price*/}
                 </div>

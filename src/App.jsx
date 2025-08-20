@@ -3,12 +3,14 @@ import axios from "axios";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import CategoryButtons from "./components/CategoryButtons";
-import MenuList from "./components/MenuList";
+import MenuList from "./components/menuList";
 import CartModal from "./components/CartModal";
 import TableSelectionModal from "./components/TableSelectionModal";
 import StickyCartButton from "./components/StickyCartButton.jsx";
 import Loader from "./components/Loader.jsx";
 import { useLocation } from "react-router-dom";
+ import { ToastContainer } from 'react-toastify';
+ import "react-toastify/dist/ReactToastify.css";
 
 const RestaurantApp = () => {
   const [categories, setCategories] = useState([]);
@@ -28,6 +30,7 @@ const RestaurantApp = () => {
   const tableFromURL = queryParams.get("table");
 
   // ---- Place Order ----
+  // -----Toastify is used for better user experience------
   const handlePlaceOrder = async () => {
     try {
       const token =
@@ -70,14 +73,11 @@ const RestaurantApp = () => {
       );
 
       console.log("✅ Order placed successfully:", response.data);
-      alert("Order placed successfully!");
+      
       setCart([]);
       setShowCart(false);
     } catch (error) {
-      console.error(
-        "❌ Failed to place order:",
-        error.response?.data || error.message
-      );
+      console.error("❌ Failed to place order:",error.response?.data || error.message);
       alert(
         JSON.stringify(error.response?.data?.errors || error.message, null, 2)
       );
@@ -205,7 +205,16 @@ const RestaurantApp = () => {
         it.categoryName?.toLowerCase().includes(lowerSearch)
     );
   }, [subcategories, menuItems, categoryMap, searchTerm]);
-
+useEffect(() => {
+  if (searchTerm.trim()) {
+    // Open all categories (or filter to just the matching one if you want)
+    const expanded = {};
+    categories.forEach(cat => {
+      expanded[cat.categoryId] = true;
+    });
+    setExpandedCategories(expanded);
+  }
+}, [searchTerm, categories]);
   // Grouped items for MenuList
   const groupedItemsForList = useMemo(() => {
     const grouped = {};
@@ -375,6 +384,7 @@ const RestaurantApp = () => {
             itemCount={getCartItemCount()}
             onClick={() => setShowCart(true)}
           />
+          <ToastContainer position="top-right" autoClose={3000} />
         </>
       )}
     </div>

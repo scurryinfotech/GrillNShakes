@@ -19,7 +19,7 @@ const TableSelectionModal = ({ tables, handleTableClick, setShowTableSelection }
           ))}
         </div>
         <button
-          onClick={() => setShowTableSelection(false)}
+          onClick={() => setShowTableSelection()}
           className="w-full mt-4 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-colors text-sm sm:text-base font-semibold"
         >
           Cancel
