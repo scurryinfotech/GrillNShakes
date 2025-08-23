@@ -9,7 +9,7 @@ import TableSelectionModal from "./components/TableSelectionModal";
 import StickyCartButton from "./components/StickyCartButton.jsx";
 import Loader from "./components/Loader.jsx";
 import { useLocation } from "react-router-dom";
- import { ToastContainer } from 'react-toastify';
+ import { ToastContainer, toast } from 'react-toastify';
  import "react-toastify/dist/ReactToastify.css";
 
 const RestaurantApp = () => {
@@ -59,9 +59,9 @@ const RestaurantApp = () => {
           half: item.size === "half" ? item.quantity : 0,
         })),
       };
-      console.log("📤 Sending order to API:", orderData);
+      // console.log("📤 Sending order to API:", orderData);
 
-      const response = await axios.post(
+      await axios.post(
         "https://localhost:7104/api/Order/Post",
         orderData,
         {
@@ -72,15 +72,13 @@ const RestaurantApp = () => {
         }
       );
 
-      console.log("✅ Order placed successfully:", response.data);
+     toast.success("Order placed successfully!");
       
       setCart([]);
       setShowCart(false);
     } catch (error) {
-      console.error("❌ Failed to place order:",error.response?.data || error.message);
-      alert(
-        JSON.stringify(error.response?.data?.errors || error.message, null, 2)
-      );
+      // console.error("❌ Failed to place order:",error.response?.data || error.message);
+      toast.error("Failed to place order. Please try again."+error.message);  
     }
   };
 
@@ -145,7 +143,7 @@ const RestaurantApp = () => {
         });
         setMenuItems(groupedItemsBySubcategory);
       } catch (err) {
-        console.error("❌ Error fetching data:", err);
+        toast.error("Failed to load menu data. Please try again later.");
         setError(err);
       } finally {
         setIsLoading(false);
@@ -384,6 +382,7 @@ useEffect(() => {
             itemCount={getCartItemCount()}
             onClick={() => setShowCart(true)}
           />
+          
           <ToastContainer position="top-right" autoClose={3000} />
         </>
       )}
